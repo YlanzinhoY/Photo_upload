@@ -79,7 +79,7 @@ func (h *photoHandler) PhotoUpload(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *photoHandler) GetPhotoById(w http.ResponseWriter, r *http.Request) {
+func (h *photoHandler) GetPhotoByName(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
 	if name == "" {

@@ -1,28 +1,44 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/ylanzinhoy/profile_with_photo_upload/internal/entity"
+	"github.com/joho/godotenv"
 	"github.com/ylanzinhoy/profile_with_photo_upload/internal/handlers"
 	"github.com/ylanzinhoy/profile_with_photo_upload/internal/infra/database"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+func init() {
+	if err := godotenv.Load(".env"); err != nil {
+		fmt.Println("Error loading .env file")
+	} else {
+		fmt.Println("Success loading.env file")
+	}
+}
 
 func main() {
 
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	mongodbUri := os.Getenv("MONGODB_URI")
+	dbName := os.Getenv("MONGO_DB_NAME")
+	collectionName := os.Getenv("MONGO_DB_COLLECTION")
 
+
+	clientOptions := options.Client().ApplyURI(mongodbUri)
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		panic(err)
 	}
 
-	db.AutoMigrate(&entity.Photo{})
+	defer client.Disconnect(context.TODO())
 
-	photoDB := database.NewPhoto(db)
+	photoDB := database.NewPhoto(client.Database(dbName).Collection(collectionName))
 	photoHandler := handlers.NewPhotoHandler(photoDB)
 
 	r := chi.NewRouter()
@@ -34,7 +50,7 @@ func main() {
 	r.Use(middleware.SetHeader("Access-Control-Allow-Headers", "Content-Type"))
 
 	r.Post("/photo", photoHandler.PhotoUpload)
-	r.Get("/photo/{name}", photoHandler.GetPhotoById)
+	r.Get("/photo/{name}", photoHandler.GetPhotoByName)
 
 	http.ListenAndServe(":3333", r)
 

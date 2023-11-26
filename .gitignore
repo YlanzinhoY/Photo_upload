@@ -1,3 +1,4 @@
 air.config
 :memory
 coverage.out
+.env
