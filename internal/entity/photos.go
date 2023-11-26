@@ -1,16 +1,14 @@
 package entity
 
 import (
-	"errors"
-
+	"github.com/go-playground/validator/v10"
 	uuidgenerate "github.com/ylanzinhoy/profile_with_photo_upload/pkg/uuidGenerate"
-	"gorm.io/gorm"
 )
 
 type Photo struct {
-	ID   uuidgenerate.ID `gorm:"primaryKey"`
-	Name string          `gorm:"not null"`
-	Data []byte          `gorm:"type:blob;not null"`
+	ID   uuidgenerate.ID `bson:"id,omitempty"`
+	Name string          `bson:"name" validate:"required"`
+	Data []byte          `bson:"data" validate:"required"`
 }
 
 func NewFile(name string, data []byte) (*Photo, error) {
@@ -21,10 +19,7 @@ func NewFile(name string, data []byte) (*Photo, error) {
 	}, nil
 }
 
-func (p *Photo) BeforeSave(tx *gorm.DB) (err error) {
-	if len(p.Data) == 0 {
-		return errors.New("data cannot be null")
-	}
-
-	return nil
+func (p *Photo) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
 }
