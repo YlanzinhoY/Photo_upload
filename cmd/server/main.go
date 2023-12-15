@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
@@ -28,7 +27,6 @@ func main() {
 	mongodbUri := os.Getenv("MONGODB_URI")
 	dbName := os.Getenv("MONGO_DB_NAME")
 	collectionName := os.Getenv("MONGO_DB_COLLECTION")
-
 
 	clientOptions := options.Client().ApplyURI(mongodbUri)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
