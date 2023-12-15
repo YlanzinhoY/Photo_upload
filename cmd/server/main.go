@@ -50,6 +50,6 @@ func main() {
 	r.Post("/photo", photoHandler.PhotoUpload)
 	r.Get("/photo/{name}", photoHandler.GetPhotoByName)
 
-	http.ListenAndServe(":3333", r)
+	http.ListenAndServe(fmt.Sprintf(":%s",os.Getenv("PORT")), r)
 
 }
